@@ -1,0 +1,20 @@
+{
+  "name": "manual-doc-recorder",
+  "version": "1.0.0",
+  "scripts": {
+    "setup": "npm install && npx playwright install chromium",
+    "record": "playwright test recorder/manual-record.spec.js --headed",
+    "record:local": "npm run record",
+    "clean": "node scripts/clean-actions.js",
+    "ai-prompt": "node scripts/render-ai-prompt.js",
+    "markdown": "node scripts/render-markdown.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.0.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5"
+  },
+  "dependencies": {
+    "sharp": "^0.33.0"
+  }
+}

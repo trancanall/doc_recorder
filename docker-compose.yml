@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: manual-doc-recorder-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # ─── QUAN TRỌNG ────────────────────────────────────────────────────────
+      # File .docx / .pdf / highlighted/ sinh ra trong container
+      # tự xuất hiện tại D:\manual-doc-recorder\output trên host — không copy tay.
+      #
+      # Windows path dùng dấu / hoặc để Docker Desktop tự resolve.
+      # Nếu chạy trên Linux/Mac thì đổi thành ./output:/app/output
+      - ./output:/app/output
+
+      # Mount source để --reload hoạt động khi dev (bỏ dòng này khi production)
+      - .:/app
+      # Nhưng KHÔNG mount node_modules từ host vào container
+      - /app/node_modules
+
+    environment:
+      # Thư mục output trong container — các script Python đọc biến này
+      - OUTPUT_DIR=/app/output
+      # Font path trong container (DejaVu có sẵn sau khi cài fonts-liberation)
+      - FONT_DIR=/usr/share/fonts/truetype/dejavu
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

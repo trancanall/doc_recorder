@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual Doc Recorder</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-50:  #E6F1FB; --blue-200: #85B7EB; --blue-600: #185FA5; --blue-800: #0C447C;
+      --green-50: #EAF3DE; --green-200: #97C459; --green-600: #3B6D11;
+      --red-50:   #FCEBEB; --red-200:  #F09595; --red-600:  #A32D2D; --red-800: #791F1F;
+      --amber-50: #FAEEDA; --amber-200:#EF9F27; --amber-600:#854F0B; --amber-800:#633806;
+      --coral-50: #FAECE7; --coral-200:#F0997B; --coral-600:#993C1D;
+      --gray-100: #D3D1C7; --gray-400: #888780; --gray-600: #5F5E5A;
+      --radius-md: 8px; --radius-lg: 12px;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: #f5f5f3;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 0.5px solid #d0cfc6;
+      padding: 2rem;
+      width: 100%;
+      max-width: 720px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 0.5px solid #e0dfd8;
+    }
+    .header-icon {
+      width: 40px; height: 40px;
+      background: var(--blue-50);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .header-icon i { font-size: 18px; color: var(--blue-600); }
+    .header h1 { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+    .header p  { font-size: 13px; color: var(--gray-600); margin-top: 2px; }
+
+    .field { margin-bottom: 1.25rem; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #3a3a3a;
+      margin-bottom: 6px;
+    }
+    .field label span { font-weight: 400; color: var(--gray-400); }
+    .field input[type="text"] {
+      height: 38px; padding: 0 10px;
+      border: 0.5px solid #ccc;
+      border-radius: var(--radius-md);
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 14px;
+      font-family: var(--font-sans);
+      width: 100%; max-width: 340px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input[type="text"]:focus {
+      outline: none;
+      border-color: var(--blue-600);
+      box-shadow: 0 0 0 3px rgba(24,95,165,0.12);
+    }
+    .field textarea {
+      width: 100%; padding: 10px;
+      border: 0.5px solid #ccc;
+      border-radius: var(--radius-md);
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 13px;
+      font-family: var(--font-mono);
+      resize: vertical;
+      min-height: 280px;
+      line-height: 1.6;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--blue-600);
+      box-shadow: 0 0 0 3px rgba(24,95,165,0.12);
+    }
+    .field textarea::placeholder { color: #aaa; }
+    .char-count { font-size: 12px; color: var(--gray-400); text-align: right; margin-top: 4px; }
+
+    .actions { display: flex; gap: 8px; align-items: center; }
+    .btn-primary {
+      height: 40px; padding: 0 20px;
+      background: var(--blue-600);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover  { background: var(--blue-800); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { background: var(--gray-100); color: var(--gray-400); cursor: not-allowed; }
+    .btn-clear {
+      height: 40px; padding: 0 16px;
+      background: transparent;
+      border: 0.5px solid #ccc;
+      border-radius: var(--radius-md);
+      font-size: 13px; color: var(--gray-600);
+      cursor: pointer;
+    }
+    .btn-clear:hover { background: #f5f5f3; }
+
+    .status-box {
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 13px;
+      margin-top: 1.25rem;
+      display: none;
+      border: 0.5px solid;
+    }
+    .status-box.info    { background: var(--blue-50);  border-color: #B5D4F4; color: var(--blue-800); }
+    .status-box.success { background: var(--green-50); border-color: #C0DD97; color: var(--green-600); }
+    .status-box.error   { background: var(--red-50);   border-color: #F7C1C1; color: var(--red-800); }
+    .status-box.running { background: var(--amber-50); border-color: #FAC775; color: var(--amber-800); }
+
+    .status-inner { display: flex; align-items: flex-start; gap: 10px; }
+    .status-icon  { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .status-title  { font-weight: 600; margin-bottom: 2px; }
+    .status-detail { font-size: 12px; opacity: 0.85; line-height: 1.5; }
+
+    .spinner {
+      width: 15px; height: 15px;
+      border: 2px solid rgba(99,56,6,0.2);
+      border-top-color: var(--amber-800);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .downloads { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .dl-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px; font-weight: 500;
+      text-decoration: none;
+      border: 0.5px solid;
+      cursor: pointer;
+    }
+    .dl-btn.docx { background: var(--blue-50);  border-color: #B5D4F4; color: var(--blue-600); }
+    .dl-btn.pdf  { background: var(--coral-50); border-color: #F5C4B3; color: var(--coral-600); }
+
+    .divider { height: 0.5px; background: #e0dfd8; margin: 1.5rem 0; }
+    .hint { font-size: 12px; color: var(--gray-400); line-height: 1.5; }
+    .hint code {
+      font-family: var(--font-mono); font-size: 11px;
+      background: #f0efe8; padding: 1px 5px;
+      border-radius: 4px; color: var(--gray-600);
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="header-icon"><i class="fa-solid fa-file-lines"></i></div>
+    <div>
+      <h1>Manual Doc Recorder</h1>
+      <p>Paste output từ AI, sinh file .docx và .pdf tự động</p>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="prefix">Tên file (prefix)</label>
+    <input type="text" id="prefix" value="HUONG_DAN_SU_DUNG" placeholder="VD: HUONG_DAN_SU_DUNG" />
+  </div>
+
+  <div class="field">
+    <label for="ai-output">
+      AI output <span>— paste nguyên đoạn văn bản vào đây</span>
+    </label>
+    <textarea id="ai-output"
+      placeholder="Dán nội dung AI output vào đây...&#10;&#10;Hỗ trợ nhiều dòng, ký tự đặc biệt, markdown...">
+    </textarea>
+    <div class="char-count" id="char-count">0 ký tự</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" id="btn-compile" onclick="doCompile()">
+      <i class="fa-solid fa-paper-plane"></i> Tạo tài liệu
+    </button>
+    <button class="btn-clear" onclick="clearForm()">Xóa</button>
+  </div>
+
+  <div class="status-box" id="status-box">
+    <div class="status-inner">
+      <div id="status-spinner" class="spinner" style="display:none"></div>
+      <i id="status-icon" class="status-icon fa-solid fa-circle-info"></i>
+      <div>
+        <div class="status-title" id="status-title"></div>
+        <div class="status-detail" id="status-detail"></div>
+        <div class="downloads" id="downloads"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <p class="hint">
+    <i class="fa-solid fa-circle-info" style="margin-right:4px;font-size:12px"></i>
+    API server: <code id="api-base-display">http://localhost:8000</code>
+    — đổi biến <code>API_BASE</code> trong script nếu deploy khác port.
+  </p>
+</div>
+
+<script>
+  const API_BASE = "http://localhost:8000";
+
+  document.getElementById("api-base-display").textContent = API_BASE;
+
+  const textarea  = document.getElementById("ai-output");
+  const charCount = document.getElementById("char-count");
+  let pollTimer = null;
+
+  textarea.addEventListener("input", () => {
+    charCount.textContent = textarea.value.length.toLocaleString("vi-VN") + " ký tự";
+  });
+
+  function showStatus(type, title, detail, downloadUrls) {
+    const box     = document.getElementById("status-box");
+    const icon    = document.getElementById("status-icon");
+    const spinner = document.getElementById("status-spinner");
+    const t       = document.getElementById("status-title");
+    const d       = document.getElementById("status-detail");
+    const dl      = document.getElementById("downloads");
+
+    box.className      = "status-box " + type;
+    box.style.display  = "block";
+    t.textContent      = title;
+    d.textContent      = detail || "";
+
+    const iconMap = {
+      info:    "fa-circle-info",
+      success: "fa-circle-check",
+      error:   "fa-circle-exclamation",
+      running: "fa-circle-notch"
+    };
+    icon.className    = "status-icon fa-solid " + (iconMap[type] || "fa-circle-info");
+    spinner.style.display = type === "running" ? "block" : "none";
+    icon.style.display    = type === "running" ? "none"  : "inline";
+
+    dl.innerHTML = "";
+    (downloadUrls || []).forEach(url => {
+      const ext = url.split(".").pop().toLowerCase();
+      const a   = document.createElement("a");
+      a.href    = API_BASE + url;
+      a.target  = "_blank";
+      a.className = "dl-btn " + ext;
+      a.innerHTML = `<i class="fa-solid fa-download"></i> Tải ${ext.toUpperCase()}`;
+      dl.appendChild(a);
+    });
+  }
+
+  async function doCompile() {
+    const aiOutput = textarea.value;
+    const prefix   = document.getElementById("prefix").value.trim() || "HUONG_DAN_SU_DUNG";
+
+    if (!aiOutput.trim()) {
+      showStatus("error", "Thiếu nội dung", "Vui lòng paste AI output vào ô văn bản trước khi tạo tài liệu.");
+      return;
+    }
+
+    const btn = document.getElementById("btn-compile");
+    btn.disabled = true;
+    if (pollTimer) clearInterval(pollTimer);
+
+    showStatus("running", "Đang gửi yêu cầu...", "Đang kết nối tới server.");
+
+    try {
+      const resp = await fetch(API_BASE + "/compile", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        /* JSON.stringify tự escape newline, tab, quote — an toàn với mọi text */
+        body:    JSON.stringify({ ai_output: aiOutput, filename_prefix: prefix })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || ("Lỗi HTTP " + resp.status));
+      }
+
+      const data  = await resp.json();
+      const jobId = data.job_id;
+      showStatus("running", "Đang xử lý...", "Job " + jobId.slice(0, 8) + "… — đang sinh file.");
+
+      pollTimer = setInterval(async () => {
+        try {
+          const s = await fetch(API_BASE + "/status/" + jobId);
+          const j = await s.json();
+
+          if (j.status === "done") {
+            clearInterval(pollTimer);
+            btn.disabled = false;
+            const warn = (j.warnings || []).length
+              ? " (" + j.warnings.join("; ") + ")"
+              : "";
+            showStatus(
+              "success",
+              "Hoàn thành!",
+              "Đã sinh " + j.files.length + " file." + warn,
+              j.download_urls
+            );
+          } else if (j.status === "error") {
+            clearInterval(pollTimer);
+            btn.disabled = false;
+            showStatus("error", "Lỗi khi xử lý", j.error || "Không rõ nguyên nhân.");
+          }
+        } catch (_) {
+          clearInterval(pollTimer);
+          btn.disabled = false;
+          showStatus("error", "Mất kết nối", "Không thể kiểm tra trạng thái job.");
+        }
+      }, 1500);
+
+    } catch (e) {
+      btn.disabled = false;
+      showStatus("error", "Gửi thất bại", e.message);
+    }
+  }
+
+  function clearForm() {
+    textarea.value    = "";
+    charCount.textContent = "0 ký tự";
+    document.getElementById("status-box").style.display = "none";
+    document.getElementById("btn-compile").disabled = false;
+    if (pollTimer) clearInterval(pollTimer);
+  }
+</script>
+</body>
+</html>
