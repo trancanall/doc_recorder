@@ -179,6 +179,51 @@
       background: #f0efe8; padding: 1px 5px;
       border-radius: 4px; color: var(--gray-600);
     }
+
+    .prompt-section { margin-top: 1.75rem; }
+    .prompt-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .prompt-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .prompt-header-left i { font-size: 14px; color: var(--coral-600); }
+    .prompt-header h2 { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+    .prompt-header p  { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+
+    .btn-copy {
+      height: 32px; padding: 0 14px;
+      background: var(--coral-50);
+      border: 0.5px solid #F5C4B3;
+      border-radius: var(--radius-md);
+      font-size: 12px; font-weight: 500;
+      color: var(--coral-600);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-copy:hover { background: #f5ddd2; }
+    .btn-copy.copied { background: var(--green-50); border-color: #C0DD97; color: var(--green-600); }
+
+    .prompt-box {
+      background: #fafaf8;
+      border: 0.5px solid #e0dfd8;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      max-height: 160px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--gray-600);
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
@@ -223,6 +268,41 @@
         <div class="downloads" id="downloads"></div>
       </div>
     </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="prompt-section">
+    <div class="prompt-header">
+      <div class="prompt-header-left">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <div>
+          <h2>Prompt xử lý cho AI</h2>
+          <p>Dùng để chuẩn hóa dữ liệu Playwright trước khi paste vào ô trên</p>
+        </div>
+      </div>
+      <button class="btn-copy" id="btn-copy-prompt" onclick="copyPrompt()">
+        <i class="fa-solid fa-copy" id="copy-icon"></i>
+        <span id="copy-label">Sao chép</span>
+      </button>
+    </div>
+    <div class="prompt-box" id="prompt-box">Bạn là một chuyên gia thiết kế tài liệu kỹ thuật (Technical Writer) chuyên nghiệp. Tôi sẽ cung cấp cho bạn dữ liệu ghi vết thao tác người dùng dưới dạng mảng JSON trích xuất từ Playwright. Nhiệm vụ của bạn là lọc bỏ các bước dư thừa, chuẩn hóa logic luồng công việc và viết một tài liệu hướng dẫn sử dụng bằng định dạng Markdown.
+
+QUY TẮC LỌC VÀ GỘP BƯỚC DƯ THỪA (CRITICAL):
+
+1. Gộp chuỗi nhập liệu (Input Consolidation): Đối với cùng một phần tử (xác định qua cùng id, selector, hoặc name) có nhiều hành động "event": "input" liên tiếp, bạn CHỈ GIỮ LẠI bước cuối cùng có giá trị ("value") đầy đủ và hoàn chỉnh nhất. Loại bỏ hoàn toàn các bước click chuột tiêu điểm (focus) chuẩn bị hoặc các bước gõ ký tự nháp trung gian ngay trước đó.
+
+2. Khử trùng lặp hành động gửi form (Submit De-duplication): Khi người dùng thực hiện một hành động kết thúc hoặc gửi dữ liệu (như nhấn nút Lưu, Gửi, Đăng nhập...), Playwright thường ghi nhận đồng thời cả 2 event liên tiếp: "click" trên phần tử tương tác và "submit" trên thẻ <form>. Hãy GỘP hai bước này thành một bước duy nhất mang tính hành động trực quan (Ví dụ: "Nhấn nút [Tên nút]" hoặc "Gửi form [Tên form]").
+
+3. Gộp hành động bổ trợ (Helper Action Consolidation): Nếu xuất hiện các hành động click vào các phần tử bổ trợ nằm ngay sát hoặc nằm trong ô nhập liệu (như icon con mắt ẩn/hiển thị mật khẩu, icon lịch chọn ngày tháng, icon xóa nhanh text...), hãy gộp chung giải thích hành động đó vào phần mô tả của bước nhập liệu chính, không tách thành một bước độc lập trong tài liệu.
+
+MỤC TIÊU ĐẦU RA:
+
+Với mỗi bước sau khi đã làm sạch và tối ưu logic, bạn phải xuất theo ĐÚNG cấu trúc văn bản sau (giữ nguyên các từ khóa tiêu đề, không bọc bôi đậm lung tung ở phần cấu trúc):
+
+Bước [Số thứ tự mới liên tục]: [Tên hành động trực quan ngắn gọn]
+Mô tả: [Viết lời hướng dẫn chi tiết người dùng phải tương tác với phần tử nào, thực hiện thao tác gì hoặc nhập dữ liệu cụ thể nào bằng tiếng Việt]
+Khung hình gốc: [Trích xuất chính xác đường dẫn từ trường "highlightedScreenshot" hoặc "screenshot" của bước được giữ lại. Ưu tiên chọn "highlightedScreenshot" nếu có]</div>
   </div>
 
   <div class="divider"></div>
@@ -354,6 +434,26 @@
     document.getElementById("status-box").style.display = "none";
     document.getElementById("btn-compile").disabled = false;
     if (pollTimer) clearInterval(pollTimer);
+  }
+
+  function copyPrompt() {
+    const promptText = document.getElementById("prompt-box").innerText;
+    const btn   = document.getElementById("btn-copy-prompt");
+    const icon  = document.getElementById("copy-icon");
+    const label = document.getElementById("copy-label");
+
+    navigator.clipboard.writeText(promptText).then(() => {
+      btn.classList.add("copied");
+      icon.className = "fa-solid fa-check";
+      label.textContent = "Đã chép";
+      setTimeout(() => {
+        btn.classList.remove("copied");
+        icon.className = "fa-solid fa-copy";
+        label.textContent = "Sao chép";
+      }, 1800);
+    }).catch(() => {
+      label.textContent = "Lỗi — chọn & Ctrl+C";
+    });
   }
 </script>
 </body>

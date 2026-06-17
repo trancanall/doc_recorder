@@ -1,5 +1,5 @@
     require('dotenv').config();
-    
+
   const { test, chromium } = require('@playwright/test');
   const fs = require('fs');
   const path = require('path');
@@ -29,29 +29,34 @@ const readline = require('readline');
   }
 
   async function drawHighlight(inputPath, outputPath, pixel, viewport) {
-    const [x1, y1, x2, y2] = pixel;
+  const [x1, y1, x2, y2] = pixel;
 
-    // Padding 12px để rect không bao sát element — trông như highlight thay vì border
-    const PAD = 12;
-    const hx = Math.max(x1 - PAD, 0);
-    const hy = Math.max(y1 - PAD, 0);
-    const hw = Math.min(x2 + PAD, viewport.width) - hx;
-    const hh = Math.min(y2 + PAD, viewport.height) - hy;
+  // Lấy kích thước THẬT của ảnh, không tin vào viewport truyền vào
+  const meta = await sharp(inputPath).metadata();
+  const actualWidth = meta.width;
+  const actualHeight = meta.height;
 
-    const svg = `
-      <svg width="${viewport.width}" height="${viewport.height}">
-        <rect x="${hx}" y="${hy}" width="${hw}" height="${hh}"
-          fill="rgba(255, 200, 0, 0.15)"
-          stroke="rgba(255, 160, 0, 0.9)"
-          stroke-width="2"
-          stroke-dasharray="6 3"
-          rx="8"/>
-      </svg>
-    `;
-    await sharp(inputPath)
-      .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
-      .toFile(outputPath);
-  }
+  // Clamp pixel theo kích thước thật, không phải viewport giả định
+  const PAD = 12;
+  const hx = Math.max(x1 - PAD, 0);
+  const hy = Math.max(y1 - PAD, 0);
+  const hw = Math.min(x2 + PAD, actualWidth) - hx;
+  const hh = Math.min(y2 + PAD, actualHeight) - hy;
+
+  const svg = `
+    <svg width="${actualWidth}" height="${actualHeight}">
+      <rect x="${hx}" y="${hy}" width="${hw}" height="${hh}"
+        fill="rgba(255, 200, 0, 0.15)"
+        stroke="rgba(255, 160, 0, 0.9)"
+        stroke-width="2"
+        stroke-dasharray="6 3"
+        rx="8"/>
+    </svg>
+  `;
+  await sharp(inputPath)
+    .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
+    .toFile(outputPath);
+}
   // Thay promptSessionMeta() bằng cái này
 async function promptSessionMeta(page) {
   await page.setContent(`
